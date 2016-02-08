@@ -17,21 +17,35 @@ import org.jfree.chart.plot.CrosshairState
 import org.jfree.chart.plot.PlotRenderingInfo
 import org.jfree.ui.RectangleEdge
 
-class ScatterPlot(title : String, points : List[Point2D]) extends JFrame(title : String) {
+class ScatterPlot(title : String, points : List[Point2D], colors : List[Int]) extends JFrame(title : String) {
+    private val colorList = List(Color.red, Color.blue, Color.green, Color.yellow, Color.cyan, Color.magenta, Color.orange,
+                                 Color.pink, Color.darkGray, Color.gray, Color.lightGray, Color.white, Color.black)
     private val data = ofDim[Float](2,points.length)
     populateData
-    val domainAxis = new NumberAxis("X")
-    domainAxis.setAutoRangeIncludesZero(false)
-    val rangeAxis = new NumberAxis("Y")
-    rangeAxis.setAutoRangeIncludesZero(false)
-    val plot = new MyFastScatterPlot(data, domainAxis, rangeAxis, List.fill(points.length)(Color.BLUE))
-    val chart = new JFreeChart(title, plot)
-    chart.getRenderingHints().put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-    val panel = new ChartPanel(chart, true)
-    setContentPane(panel)
-    this.pack
-    this.setLocationRelativeTo(null)
-    this.setVisible(true)
+    drawPlot
+
+    def this(title : String, points : List[Point2D]) {
+        this(title, points, List.fill(points.length)(0))
+    }
+
+    def this(title : String, clusters : Map[Int,List[Point2D]]) {        
+        this(title, clusters.values.toList.flatten, clusters.foldLeft(List() : List[Int])((l,kv) => l ++ List.fill(kv._2.length)(kv._1)))
+    }
+
+    private def drawPlot(){
+        val domainAxis = new NumberAxis("X")
+        domainAxis.setAutoRangeIncludesZero(false)
+        val rangeAxis = new NumberAxis("Y")
+        rangeAxis.setAutoRangeIncludesZero(false)
+        val plot = new MyFastScatterPlot(data, domainAxis, rangeAxis, colors.map(this.colorList(_)))
+        val chart = new JFreeChart(title, plot)
+        chart.getRenderingHints().put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+        val panel = new ChartPanel(chart, true)
+        setContentPane(panel)
+        this.pack
+        this.setLocationRelativeTo(null)
+        this.setVisible(true)
+    }
 
     private def populateData {
         for (i <- 0 until points.length){
@@ -40,7 +54,8 @@ class ScatterPlot(title : String, points : List[Point2D]) extends JFrame(title :
         }
     }
 
-    class MyFastScatterPlot(data : Array[Array[Float]], domainAxis : NumberAxis, rangeAxis : NumberAxis, colors : List[Color]) extends FastScatterPlot(data : Array[Array[Float]], domainAxis : NumberAxis, rangeAxis : NumberAxis) {
+    class MyFastScatterPlot(data : Array[Array[Float]], domainAxis : NumberAxis, rangeAxis : NumberAxis, colors : List[Color])
+    extends FastScatterPlot(data : Array[Array[Float]], domainAxis : NumberAxis, rangeAxis : NumberAxis) {
         override def render(g2 : Graphics2D, dataArea : Rectangle2D, info : PlotRenderingInfo, crosshairState : CrosshairState) {
            if (getData() != null) {
                for (i <- 0 until getData()(0).length) {

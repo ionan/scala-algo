@@ -2,25 +2,18 @@ package com.ionan.scalaalgo.classification.kmeans
 
 import org.scalatest.FunSpec
 import com.ionan.scalaalgo.geometry._
+import scala.io.Source
 
 class ClustererSpec extends FunSpec {
-    val points = List(
-        new Point2D(73,72.6),
-        new Point2D(61,54.4),
-        new Point2D(67,99.9),
-        new Point2D(68,97.3),
-        new Point2D(62,59.0),
-        new Point2D(75,81.6),
-        new Point2D(74,77.1),
-        new Point2D(66,97.3),
-        new Point2D(68,93.3),
-        new Point2D(61,59.0)
-    )
-
-    new ScatterPlot("Test",points)
+    val points = Source.fromFile("src/resources/k_means_sample_1000.txt", "utf-8")
+                         .getLines
+                         .map(toPoint2D(_))
 
     val cl = new Clusterer(3)
-    cl.cluster(points)
+    val clusters = cl.cluster(points.toList)
+
+    new ScatterPlot("Test",clusters)
+
   /*describe("array for 3 clusters / 10 tuples") {
     it("should equals 10"){
         assert(arr.length == 10)
@@ -34,4 +27,10 @@ class ClustererSpec extends FunSpec {
         assert(arr.filter(_ >= 0).length == arr.length)
     }
 }*/
+
+    def toPoint2D(xy : String) : Point2D = {
+        val x = xy.split("\t")(0).toDouble
+        val y = xy.split("\t")(1).toDouble
+        Point2D(x,y)
+    }
 }
