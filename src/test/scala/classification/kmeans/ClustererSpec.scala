@@ -5,7 +5,7 @@ import com.ionan.scalaalgo.geometry._
 import scala.io.Source
 
 class ClustererSpec extends FunSpec {
-    val points = Source.fromFile("src/resources/k_means_sample_1000.txt", "utf-8")
+    val points = Source.fromFile("src/resources/k_means_sample_100.txt", "utf-8")
                          .getLines
                          .map(toPoint2D(_))
 
